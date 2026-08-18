@@ -1,4 +1,5 @@
 import sys
+import os
 import argparse
 import datetime
 import pysam as ps

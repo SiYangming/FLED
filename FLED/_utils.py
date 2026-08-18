@@ -10,6 +10,7 @@ from progressbar import *
 from Bio import SeqIO
 from spoa import poa
 import sys
+import os
 import argparse
 from tqdm import tqdm
 import subprocess
