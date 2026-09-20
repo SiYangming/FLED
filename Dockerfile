@@ -1,6 +1,6 @@
 # FLED - a full-length eccDNA detector for long-reads sequencing data
 # Build as linux/amd64 (x86_64). On Apple Silicon hosts, build with:
-#   docker buildx build --platform linux/amd64 -t quay.io/bioinfortools/fled:1.7.1 .
+#   docker buildx build --platform linux/amd64 -t quay.io/bioinfortools/fled:1.7.0 .
 #
 # ========== Stage 1: Builder ==========
 # Python 3.8 slim (FLED pins scipy==1.5.3 / biopython==1.76 / pysam==0.22 which
@@ -61,7 +61,7 @@ RUN FLED 2>&1 | head -6; \
     seqtk 2>&1 | head -1
 
 LABEL org.opencontainers.image.source="https://github.com/FuyuLi/FLED" \
-      org.opencontainers.image.version="1.7.1" \
+      org.opencontainers.image.version="1.7.0" \
       org.opencontainers.image.title="FLED" \
       org.opencontainers.image.description="Full-Length eccDNA Detection (apt minimal multi-stage)"
 
