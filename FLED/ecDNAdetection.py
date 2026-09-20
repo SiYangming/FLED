@@ -65,7 +65,8 @@ class detection:
         bamfile = self.out_dir + '/MappingResult/' + self.label + ".sorted.bam"
         baifile = self.out_dir + '/MappingResult/' + self.label + ".sorted.bam.bai"
 
-        alignment = subprocess.call(["minimap2", "-t", str(self.threads), "-ax", "map-ont", self.reffa, self.input_fq, "-o", samfile], shell=False)
+        split_prefix = self.out_dir + '/MappingResult/' + self.label + ".mmi"
+        alignment = subprocess.call(["minimap2", "-t", str(self.threads), "-ax", "map-ont", "--split-prefix", split_prefix, self.reffa, self.input_fq, "-o", samfile], shell=False)
         if alignment  != 0:
             print(datetime.datetime.now().strftime("\n%Y-%m-%d %H:%M:%S:"),
                   "An error happened during minimap2 for reads alignment. Exiting")
@@ -74,7 +75,7 @@ class detection:
             print(datetime.datetime.now().strftime("\n%Y-%m-%d %H:%M:%S:"),
                     "Minimap2 alignment Done!")
         samtoolsSort = subprocess.call(["samtools", "sort", "-@", str(self.threads), "-O", "bam", "-o", bamfile, samfile], shell=False)
-        samtoolsIndex = subprocess.call(["samtools", "index",bamfile, baifile], shell=False)
+        samtoolsIndex = subprocess.call(["samtools", "index", "-c", bamfile], shell=False)
         if (samtoolsSort + samtoolsIndex) != 0:
             print(datetime.datetime.now().strftime("\n%Y-%m-%d %H:%M:%S:"),
                   "An error happened during samtools. Exiting")

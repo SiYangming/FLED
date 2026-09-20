@@ -61,7 +61,7 @@ def get_continuous_SAinfo(ont_bam,read_gap, mapq_cutoff, verbose, begin):
     '''
     if verbose >= 3:
         print(datetime.datetime.now().strftime("\n%Y-%m-%d %H:%M:%S:"), "Parse SAinfo for continuous SA reads\n")
-    bamFile = ps.AlignmentFile("%s" % ont_bam, "rb")
+    bamFile = ps.AlignmentFile("%s" % ont_bam, "rb", check_sq=False)
     valid_cutoff = 0.7
     SAInfo = {}
     LinearReads = defaultdict(dict)
@@ -639,7 +639,7 @@ def Ori_Coverage_count(ont_bam, Junctions, revisedJunc, verbose, filtering_level
         supporting_reads = 2
     else :
         supporting_reads = 1
-    bamFile = ps.AlignmentFile("%s" % ont_bam, "rb")
+    bamFile = ps.AlignmentFile("%s" % ont_bam, "rb", check_sq=False)
     reference_contigs = bamFile.header['SQ']
     header_dict = {}
     for reference in reference_contigs:
@@ -842,7 +842,7 @@ def multisegs_cluster(data, maxgap) :
     segnum = len(data[0])
     for x in data[1:]:
         newGroup = True
-        for group in groups[1:] :
+        for group in groups :
             inGroup = True
             for seg in range(segnum) :
                 if (x[seg][0] == group[-1][seg][0]) and (abs(x[seg][1] - group[-1][seg][1]) <= maxgap) and \
@@ -854,6 +854,7 @@ def multisegs_cluster(data, maxgap) :
             if inGroup == True :
                 newGroup = False
                 group.append(x)
+                break
         if newGroup == True :
             groups.append([x])
     return groups
@@ -936,6 +937,7 @@ def MS_PseudoReference(OutDir, Segreads, refFa, fastq, threadnum, verbose) :
         for record in SeqIO.parse(fa, 'fasta'):
             seqs[record.id] = record.seq
     ecclist = []
+    seen_pseudo = set()
     for record in Segreads:
         eccdna = record.strip().lstrip('[[').rstrip(']]').split('], [')
         eccid = ''
@@ -947,7 +949,11 @@ def MS_PseudoReference(OutDir, Segreads, refFa, fastq, threadnum, verbose) :
             pseudoref += seqs[segid]
         eccid = eccid.rstrip('|')
         eccref = SeqRecord(pseudoref, id=eccid)
-        ecclist.append(eccref)
+        if eccid in seen_pseudo:
+            print(datetime.datetime.now().strftime("\n%Y-%m-%d %H:%M:%S:"), "Skipped duplicate PseudoReference junction", eccid)
+        else:
+            seen_pseudo.add(eccid)
+            ecclist.append(eccref)
     SeqIO.write(ecclist, tmpPRfa, "fasta")
     with open(tmpfq, "wb") as TMPFQ:
         get_multireads = subprocess.call(
